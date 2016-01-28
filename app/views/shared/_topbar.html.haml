@@ -1,5 +1,5 @@
-%nav.navbar.navbar-default
-  .container-fluid
+.navbar.navbar-default
+  .container
     .navbar-header
       %btn.navbar-toggle.collapsed{ data: { toggle: "collapse", target: "#bs-example-navbar-collapse-1" }}
         %span.sr-only
@@ -8,8 +8,6 @@
         %span.icon-bar
         %span.icon-bar
       = link_to "Chunked Rails Uploads", root_path, class: "navbar-brand"
-      %a.navb{ href: "#" }
-        = image_tag "/img/logo.png", size: "100x50"
 
     .collapse.navbar-collapse#bs-example-navbar-collapse-1
       %ul.nav.navbar-nav

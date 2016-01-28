@@ -13,9 +13,7 @@
     = csrf_meta_tags
 
   %body{ data: { controller: controller_name, action: action_name } }
+    = render 'shared/topbar'
     .container
-
-      = render 'shared/topbar'
-      .content-wrapper
-        = notice
-        = yield
+      = notice
+      = yield
