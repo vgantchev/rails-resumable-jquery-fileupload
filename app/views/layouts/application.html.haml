@@ -1,0 +1,21 @@
+!!! 5
+%html
+  %head
+    %title
+      = "Chunked Rails uploads with jQuery Fileupload and Paperclip"
+
+    %meta{ content: 'minimum-scale=1.0, width=device-width, maximum-scale=1, user-scalable=no', name: 'viewport' }
+    %meta{ name: 'apple-mobile-web-app-capable', content: 'yes' }
+    %meta{ name: 'apple-touch-fullscreen', content: 'yes' }
+
+    = stylesheet_link_tag 'application', media: 'all'
+    = javascript_include_tag 'application'
+    = csrf_meta_tags
+
+  %body{ data: { controller: controller_name, action: action_name } }
+    .container
+
+      = render 'shared/topbar'
+      .content-wrapper
+        = notice
+        = yield

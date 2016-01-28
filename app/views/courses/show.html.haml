@@ -1,0 +1,14 @@
+%h1
+  = @course.name
+  = link_to content_tag(:i, "", class: "glyphicon glyphicon-pencil"), edit_course_path(@course)
+%hr
+
+.empty-space
+
+%h3
+  Uploaded file
+.padding-left
+  .row
+    = @course.upload_file_name + " (" + number_to_human_size(@course.upload_file_size.to_s) + ")"
+  .row
+    = link_to content_tag(:i, "", class: "glyphicon glyphicon-download") + " Download", @course.upload.url, class: "btn btn-lg btn-success"

@@ -1,0 +1,160 @@
+%h1
+  Upload a file
+%hr
+
+= form_for @course, url: upload_course_path, method: :post, html: { multipart: true, id: "fileupload" } do |f|
+  .row
+    %h3
+      Course name
+    .padding-left
+      = @course.name
+  
+  .row.empty-space
+
+  .row 
+    - unless @course.status == 'uploading'
+      .alert.alert-success.smaller-text
+        To begin an upload, please first select a file from your computer.
+    - else
+      .alert.alert-warning.smaller-text
+        The system detected an unfinished upload. To resume it, please select the same file and press the green button. <br />
+        Resume not working or receiving error messages? Then please click #{link_to 'here', reset_upload_course_path(@course)} to delete the temoporary file and start over.
+
+  .row.fileupload-buttonbar
+    #js-data{ data: { course: @course.id } }
+    .col-lg-7
+      .btn.btn-primary.fileinput-button
+        %i.glyphicon.glyphicon-plus
+        Select a file
+        = f.file_field :upload
+
+  %table.table.table-striped#js-file-container{ role: "presentation" }
+    %tbody.files
+
+
+  .panel.panel-default
+    .panel-heading
+      %h3
+        Some general information
+    .panel-body
+      das
+
+:javascript
+  $(document).ready(function () {
+    var course_id = $('#js-data').data('course');
+    var controller_name = $('body').data('controller');
+    var model_instance_path = '/' + controller_name + '/' + course_id;
+    var resume_path = model_instance_path + '/resume_upload';
+    var update_status_path = model_instance_path + '/update_status';
+
+    $('#fileupload').fileupload({
+      maxNumberOfFiles: 1,
+      maxChunkSize: 10000000, // 10 MB
+      add: function (e, data) {
+        var that = this;
+        $.getJSON(resume_path, { file: data.files[0].name }, function (result) {
+            var file = result.file;
+            data.uploadedBytes = file && file.size;
+            $.blueimp.fileupload.prototype
+                .options.add.call(that, e, data);
+        });
+      }
+    });
+
+    $('#fileupload')
+      .bind('fileuploadchunkdone', function (e, data) {
+        var perc = parseInt(data.loaded / data.total * 100, 10);
+        $('#js-completed').html(perc + "%");
+      })
+      .bind('fileuploadsubmit', function (e, data) {
+        $.ajax({
+          url: update_status_path,
+          type: "PATCH",
+          data: { status: 'uploading' }
+        });
+      })
+      .bind('fileuploaddone', function (e, data) {
+        $.ajax({
+          url: update_status_path,
+          type: "PATCH",
+          data: { status: 'uploaded'},
+          success: function(data) {
+            window.location.replace(model_instance_path);
+          } 
+        });
+      });
+    });
+
+:plain
+  <script id="template-upload" type="text/x-tmpl">
+    {% for (var i=0, file; file=o.files[i]; i++) { %}
+        <tr class="template-upload fade">
+
+            <td width="45%">
+                <p class="name"><h3>{%=file.name%}</h3></p>
+                <p class="size">Processing...</p>
+                <strong class="error text-danger"></strong>
+
+                {% if (!i && !o.options.autoUpload) { %}
+                    <button class="btn btn-success start" disabled>
+                        <i class="glyphicon glyphicon-upload"></i>
+                        Start / resume
+                    </button> 
+                {% } %}
+                {% if (!i) { %}
+                    <button class="btn btn-danger cancel">
+                        <i class="glyphicon glyphicon-ban-circle"></i>
+                        Cancel upload
+                    </button>
+                {% } %}
+            </td>
+            <td width="45%" style="vertical-align: middle;">
+                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+                <p><h1 id="js-completed" align="center"></h1></p>
+            </td>
+        </tr>
+    {% } %}
+  </script>
+
+  <script id="template-download" type="text/x-tmpl">
+    {% for (var i=0, file; file=o.files[i]; i++) { %}
+        <tr class="template-download fade">
+            <td>
+                <span class="preview">
+                    {% if (file.thumbnailUrl) { %}
+                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+                    {% } %}
+                </span>
+            </td>
+            <td>
+                <p class="name">
+                    {% if (file.url) { %}
+                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                    {% } else { %}
+                        <span>{%=file.name%}</span>
+                    {% } %}
+                </p>
+                {% if (file.error) { %}
+                    <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+                {% } %}
+            </td>
+            <td>
+                <span class="size">{%=o.formatFileSize(file.size)%}</span>
+            </td>
+            <td>
+                {% if (file.deleteUrl) { %}
+                    <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                        <i class="glyphicon glyphicon-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                    <input type="checkbox" name="delete" value="1" class="toggle">
+                {% } else { %}
+                    <button class="btn btn-warning cancel">
+                        <i class="glyphicon glyphicon-ban-circle"></i>
+                        <span>Cancel</span>
+                    </button>
+                {% } %}
+            </td>
+        </tr>
+      {% } %}
+    </script>

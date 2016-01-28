@@ -1,0 +1,11 @@
+%h1 
+  All courses
+  = link_to 'Add a new course', new_course_path, class: "btn btn-large btn-success"
+%hr
+.padding-bottom
+
+
+- @courses.each do |course|
+  .row
+    = link_to course.name, course
+

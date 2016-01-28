@@ -1,0 +1,30 @@
+= form_for @course, html: { multipart: true, id: "fileupload" } do |f|
+  - if @course.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@course.errors.count, "error")} prohibited this course from being saved:"
+      %ul
+        - @course.errors.full_messages.each do |msg|
+          %li= msg
+
+  .col-md-5
+    .row
+      %h3
+        Course name
+      .padding-left
+        = f.text_field :name
+
+    - if @course.upload_done?
+      .row  
+        %h3
+          Uploaded file
+        .padding-left
+          .row
+            = @course.upload_file_name + " (" + number_to_human_size(@course.upload_file_size.to_s) + ")"
+          .row
+            = check_box_tag :delete_upload, 'yes', false
+            = label_tag :delete_upload, 'delete this file', class: 'text-danger'
+    
+    .empty-space
+    .row
+      - submit_text = controller_name == 'new' ? "Create" : "Save"
+      = f.submit submit_text, class: "btn btn-success"
