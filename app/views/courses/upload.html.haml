@@ -42,6 +42,7 @@
     $('#fileupload').fileupload({
       maxNumberOfFiles: 1,
       maxChunkSize: 10000000, // 10 MB
+      type: 'PATCH',
       add: function (e, data) {
         var that = this;
         $.getJSON(resume_path, { file: data.files[0].name }, function (result) {
@@ -57,13 +58,6 @@
       .bind('fileuploadchunkdone', function (e, data) {
         var perc = parseInt(data.loaded / data.total * 100, 10);
         $('#js-completed').html(perc + "%");
-      })
-      .bind('fileuploadsubmit', function (e, data) {
-        $.ajax({
-          url: update_status_path,
-          type: "PATCH",
-          data: { status: 'uploading' }
-        });
       })
       .bind('fileuploaddone', function (e, data) {
         $.ajax({
