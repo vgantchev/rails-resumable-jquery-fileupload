@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   resources :courses do
     member do 
       get 'upload', to: 'courses#upload'
-      post 'upload', to: 'courses#do_upload'
+      patch 'upload', to: 'courses#do_upload'
       get 'resume_upload', to: 'courses#resume_upload'
       patch 'update_status', to: 'courses#update_status'
       get 'reset_upload', to: 'courses#reset_upload'

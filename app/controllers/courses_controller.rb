@@ -71,14 +71,16 @@ class CoursesController < ApplicationController
 
   end
 
-  # POST /courses/:id/upload.json
+  # PATCH /courses/:id/upload.json
   def do_upload
     unpersisted_course = Course.new(upload_params)
 
     # If no file has been uploaded or the uploaded file has a different filename,
     # do a new upload from scratch
     if @course.upload_file_name != unpersisted_course.upload_file_name
-      @course.update!(upload_params)
+      @course.assign_attributes(upload_params)
+      @course.status = 'uploading'
+      @course.save!
       render json: @course.to_jq_upload and return
 
     # If the already uploaded file has the same filename, try to resume
@@ -121,8 +123,7 @@ class CoursesController < ApplicationController
 
   # PATCH /courses/:id/update_upload_status
   def update_status
-    allowed_statuses = %w(uploading uploaded)
-    raise ArgumentError, "Wrong status provided " + params[:status] unless params[:status].in?(allowed_statuses)
+    raise ArgumentError, "Wrong status provided " + params[:status] unless @course.status == 'uploading' && params[:status] == 'uploaded'
     @course.update!(status: params[:status])
     head :ok
   end
