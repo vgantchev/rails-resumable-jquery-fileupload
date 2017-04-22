@@ -17,8 +17,8 @@ class Course < ActiveRecord::Base
           name: read_attribute(:upload_file_name),
           size: read_attribute(:upload_file_size),
           url: upload.url(:original),
-          delete_url: Rails.application.routes.url_helpers.course_path(self),
-          delete_type: "DELETE" 
+          deleteUrl: Rails.application.routes.url_helpers.course_path(self),
+          deleteType: "DELETE" 
         }
       ]
     }
